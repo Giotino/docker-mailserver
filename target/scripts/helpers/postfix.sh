@@ -45,6 +45,7 @@ function _vhost_collect_postfix_domains
 {
   local DATABASE_ACCOUNTS='/tmp/docker-mailserver/postfix-accounts.cf'
   local DATABASE_VIRTUAL='/tmp/docker-mailserver/postfix-virtual.cf'
+  local SENDONLY_DOMAINS='/tmp/docker-mailserver/sendonly-domains.cf'
   local DOMAIN UNAME
 
   # getting domains FROM mail accounts
@@ -53,6 +54,16 @@ function _vhost_collect_postfix_domains
     while IFS=$'|' read -r LOGIN _
     do
       DOMAIN=$(echo "${LOGIN}" | cut -d @ -f2)
+
+      # Check if it's a send-only domain (postfix shouldn't be its final destination)
+	    if [[ -f ${SENDONLY_DOMAINS} ]]
+	    then
+	      while read -r SENDONLY_DOMAIN _
+	      do
+	  	  [[ ${SENDONLY_DOMAIN} == "${DOMAIN}" ]] && continue 2;
+  	    done < <(_get_valid_lines_from_file "${SENDONLY_DOMAINS}")
+  	  fi
+
       echo "${DOMAIN}" >>"${TMP_VHOST}"
     done < <(_get_valid_lines_from_file "${DATABASE_ACCOUNTS}")
   fi
