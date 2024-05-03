@@ -112,5 +112,3 @@ smtp_header_checks = pcre:/etc/postfix/maps/sender_header_filter.pcre
 # TODO: The next compatibility_level is 3.6, when Postfix 3.6 is available consider
 # bumping this value after taking the compaitibilty changes into account.
 compatibility_level = 2
-
-smtpd_peername_lookup = no
